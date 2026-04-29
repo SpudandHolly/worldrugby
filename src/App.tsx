@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Camera,
   HeartPulse,
-  Plane,
   BedDouble,
   Droplets,
   Dumbbell,
@@ -13,7 +12,6 @@ import {
   ShieldCheck,
   AlertTriangle,
   Play,
-  Mic,
   Menu,
   X,
 } from "lucide-react";
@@ -512,87 +510,189 @@ function DayPanel({ day }: { day: DayData | null }) {
 }
 
 function CheckIn() {
-  const [done, setDone] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [timer, setTimer] = useState(0);
+
+  const emotions = [
+    { name: "Joy", value: 74, color: "bg-emerald-400" },
+    { name: "Amusement", value: 71, color: "bg-yellow-400" },
+    { name: "Interest", value: 54, color: "bg-yellow-400" },
+    { name: "Love", value: 42, color: "bg-sky-400" },
+    { name: "Satisfaction", value: 41, color: "bg-slate-400" },
+    { name: "Excitement", value: 39, color: "bg-rose-400" },
+  ];
+
+  const startRecording = () => {
+    setIsRecording(true);
+    setTimer(0);
+    const interval = setInterval(() => {
+      setTimer((t) => {
+        if (t >= 15) {
+          clearInterval(interval);
+          return 15;
+        }
+        return t + 1;
+      });
+    }, 1000);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   return (
-    <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_420px]">
-      <Card className="overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-950 text-white">
+    <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_400px]">
+      {/* Video Panel */}
+      <Card className="overflow-hidden rounded-2xl sm:rounded-3xl">
         <CardContent className="p-0">
-          <div className="relative grid h-80 sm:h-[420px] lg:h-[520px] place-items-center bg-[radial-gradient(circle_at_center,#1e3a5f,#020617)]">
-            <div className="absolute left-3 sm:left-5 top-3 sm:top-5 rounded-full bg-red-500 px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-bold">
-              LIVE DEMO
+          <div className="relative">
+            {/* Video/Image Area */}
+            <div className="relative aspect-[4/3] sm:aspect-video bg-slate-100 overflow-hidden">
+              {isRecording ? (
+                <img
+                  src="/checkin-demo.png"
+                  alt="Check-in analysis"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                  <div className="text-center">
+                    <Camera className="h-16 w-16 sm:h-20 sm:w-20 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-500 text-sm sm:text-base">Camera preview</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Recording Timer */}
+              {isRecording && (
+                <div className="absolute left-3 sm:left-4 top-3 sm:top-4 flex items-center gap-2 bg-slate-900/80 backdrop-blur rounded-lg px-3 py-2">
+                  <div className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-white font-mono font-bold text-sm">
+                    {formatTime(timer)}
+                  </span>
+                </div>
+              )}
+
+              {/* Transcription Bar */}
+              {isRecording && (
+                <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur px-4 py-3 text-center">
+                  <p className="text-white text-sm">
+                    Speak naturally — live transcription active
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="grid h-32 w-32 sm:h-48 sm:w-48 lg:h-64 lg:w-64 place-items-center rounded-full border border-white/20 bg-white/5">
-              <Camera className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 text-white/50" />
-            </div>
-            <div className="absolute bottom-3 sm:bottom-5 left-3 sm:left-5 right-3 sm:right-5 grid gap-2 sm:gap-3 grid-cols-3">
-              <Metric label="Composure" value={done ? 67 : 0} />
-              <Metric label="Stress load" value={done ? 72 : 0} />
-              <Metric label="Confidence" value={done ? 58 : 0} />
-            </div>
+
+            {/* Start Button */}
+            {!isRecording && (
+              <div className="p-4 sm:p-6">
+                <Button
+                  onClick={startRecording}
+                  className="w-full rounded-full bg-[#003B5C] hover:bg-[#002a42] text-sm sm:text-base py-6"
+                >
+                  <Play className="mr-2 h-5 w-5" />
+                  Start check-in
+                </Button>
+                <p className="mt-3 text-xs sm:text-sm text-slate-500 text-center">
+                  Record a 2-minute welfare check-in with live emotion analysis
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
+      {/* Analysis Panel */}
       <Card className="rounded-2xl sm:rounded-3xl">
         <CardContent className="p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-black">
-            Two-minute welfare check-in
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm text-slate-600">
-            The referee records a short video or voice check-in. The demo mirrors the
-            TfW Pitch Coach pattern: live analysis, emotion mesh style feedback and AI
-            coaching notes.
-          </p>
-
-          <div className="mt-4 sm:mt-5 space-y-2 sm:space-y-3">
-            <Prompt icon={Mic} text="How are you feeling about the next fixture?" />
-            <Prompt
-              icon={Plane}
-              text="What travel or accommodation is creating pressure?"
-            />
-            <Prompt icon={BedDouble} text="How did you sleep last night?" />
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className={`h-2.5 w-2.5 rounded-full ${isRecording ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
+            <span className="font-bold text-slate-900 tracking-wide text-sm">LIVE ANALYSIS</span>
           </div>
 
-          <Button
-            onClick={() => setDone(true)}
-            className="mt-4 sm:mt-6 w-full rounded-full bg-[#003B5C] text-sm"
-          >
-            <Play className="mr-2 h-4 w-4" />
-            Run check-in analysis
-          </Button>
+          {/* Attention */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-red-500">👁</span>
+                <span className="font-semibold text-slate-900">Attention</span>
+              </div>
+              <span className={`font-bold text-lg ${isRecording ? "text-slate-900" : "text-slate-300"}`}>
+                {isRecording ? 50 : "—"}
+              </span>
+            </div>
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-red-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: isRecording ? "50%" : "0%" }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            {isRecording && (
+              <p className="text-xs text-slate-500 mt-1">Partial — refocus on camera</p>
+            )}
+          </div>
 
-          {done && (
+          {/* Voice */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-red-500">🎙</span>
+                <span className="font-semibold text-slate-900">Voice (Speaking)</span>
+              </div>
+              <span className={`font-bold text-lg ${isRecording ? "text-slate-900" : "text-slate-300"}`}>
+                {isRecording ? 17 : "—"}
+              </span>
+            </div>
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-red-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: isRecording ? "17%" : "0%" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              />
+            </div>
+          </div>
+
+          {/* Detected Emotions */}
+          <div>
+            <h3 className="font-bold text-slate-900 mb-4 text-center">Detected Emotions</h3>
+            <div className="space-y-3">
+              {emotions.map((emotion, index) => (
+                <div key={emotion.name} className="flex items-center gap-3">
+                  <span className="w-24 text-sm text-slate-700">{emotion.name}</span>
+                  <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full ${emotion.color} rounded-full`}
+                      initial={{ width: 0 }}
+                      animate={{ width: isRecording ? `${emotion.value}%` : "0%" }}
+                      transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                    />
+                  </div>
+                  <span className={`w-8 text-right text-sm font-bold ${isRecording ? emotion.color.replace("bg-", "text-").replace("-400", "-600") : "text-slate-300"}`}>
+                    {isRecording ? emotion.value : "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* AI Note */}
+          {isRecording && timer >= 10 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 sm:mt-5 rounded-xl sm:rounded-2xl bg-blue-50 p-3 sm:p-4 text-xs sm:text-sm text-blue-950"
+              className="mt-6 rounded-xl bg-blue-50 p-4 text-sm text-blue-950"
             >
-              <strong>AI welfare note:</strong> elevated arousal and reduced confidence
-              coincide with travel pressure. Recommend welfare call, sleep protection
-              and reducing non-essential media commitments.
+              <strong>AI welfare note:</strong> High joy and amusement levels indicate positive emotional state. Attention slightly reduced — consider environment factors. Overall wellness profile: Good.
             </motion.div>
           )}
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl sm:rounded-2xl bg-white/10 p-2 sm:p-4">
-      <div className="text-[10px] sm:text-xs text-white/60">{label}</div>
-      <div className="text-lg sm:text-2xl lg:text-3xl font-black">{value}</div>
-    </div>
-  );
-}
-
-function Prompt({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
-  return (
-    <div className="flex items-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl bg-slate-50 p-2 sm:p-3 text-xs sm:text-sm">
-      <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-[#003B5C] flex-shrink-0" />
-      <span>{text}</span>
     </div>
   );
 }
