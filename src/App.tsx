@@ -18,8 +18,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -270,38 +268,31 @@ function Dashboard({ setScreen }: { setScreen: (s: Screen) => void }) {
             <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <p className="text-xs sm:text-sm text-slate-500">
-                  Current welfare state
+                  April 2026
                 </p>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900">
-                  Stable, with two risk spikes
+                  Wellbeing Score Trend
                 </h1>
               </div>
-              <HeartPulse className="hidden sm:block text-emerald-500 h-6 w-6" />
+              <HeartPulse className="hidden sm:block text-[#00A9E0] h-6 w-6" />
             </div>
             <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                <AreaChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="day" tick={{ fontSize: 10 }} interval={6} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={30} />
                   <Tooltip />
-                  <Line
+                  <Area
                     type="monotone"
                     dataKey="wellbeing"
-                    stroke="#10b981"
+                    stroke="#003B5C"
                     strokeWidth={2}
-                    dot={false}
-                    name="Wellbeing"
+                    fill="#00A9E0"
+                    fillOpacity={0.2}
+                    name="Wellbeing Score"
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="load"
-                    stroke="#f59e0b"
-                    strokeWidth={2}
-                    dot={false}
-                    name="Pressure load"
-                  />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
