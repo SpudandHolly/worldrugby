@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+* {
+  @apply border-slate-200;
+}
+
+body {
+  @apply bg-white text-slate-950 antialiased;
+  font-family: var(--font-sans);
+  margin: 0;
+}
