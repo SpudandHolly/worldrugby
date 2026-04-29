@@ -12,4 +12,5 @@ body {
   @apply bg-white text-slate-950 antialiased;
   font-family: var(--font-sans);
   margin: 0;
+  --app-version: 1;
 }
